@@ -1,10 +1,8 @@
 package service
 
 import (
-	"context"
 	"crypto/rand"
 	"crypto/rsa"
-	"errors"
 
 	"golang.org/x/crypto/acme"
 	"golang.org/x/crypto/acme/autocert"
@@ -19,18 +17,11 @@ type LetsEncryptConfig struct {
 }
 
 func NewCertManager(config *LetsEncryptConfig) (*autocert.Manager, error) {
-	policyFunc := func(ctx context.Context, host string) error {
-		if host != config.Domain {
-			return errors.New("invalid hostname")
-		}
-		return nil
-	}
-
 	manager := autocert.Manager{
 		Prompt:     autocert.AcceptTOS,
 		Cache:      autocert.DirCache(config.Dir),
 		Email:      config.Email,
-		HostPolicy: policyFunc,
+		HostPolicy: autocert.HostWhitelist(config.Domain),
 	}
 
 	if config.Staging {
