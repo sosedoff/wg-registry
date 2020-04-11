@@ -11,12 +11,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 
-	"github.com/sosedoff/x/wireguard-manager/assets"
-	"github.com/sosedoff/x/wireguard-manager/controller"
-	"github.com/sosedoff/x/wireguard-manager/model"
-	"github.com/sosedoff/x/wireguard-manager/service"
-	"github.com/sosedoff/x/wireguard-manager/store"
-	"github.com/sosedoff/x/wireguard-manager/util"
+	"github.com/sosedoff/wg-registry/assets"
+	"github.com/sosedoff/wg-registry/controller"
+	"github.com/sosedoff/wg-registry/model"
+	"github.com/sosedoff/wg-registry/service"
+	"github.com/sosedoff/wg-registry/store"
+	"github.com/sosedoff/wg-registry/util"
 )
 
 func Run() {

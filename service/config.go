@@ -2,8 +2,8 @@ package service
 
 import (
 	"github.com/jessevdk/go-assets"
-	"github.com/sosedoff/x/wireguard-manager/controller"
-	"github.com/sosedoff/x/wireguard-manager/store"
+	"github.com/sosedoff/wg-registry/controller"
+	"github.com/sosedoff/wg-registry/store"
 )
 
 type Config struct {

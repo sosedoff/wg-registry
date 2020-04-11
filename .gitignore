@@ -7,3 +7,4 @@ Procfile
 tmp/
 *.log
 config.json
+wg-registry

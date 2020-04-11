@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/sosedoff/x/wireguard-manager/cli"
+	"github.com/sosedoff/wg-registry/cli"
 )
 
 func main() {

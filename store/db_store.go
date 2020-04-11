@@ -3,7 +3,7 @@ package store
 import (
 	"github.com/jinzhu/gorm"
 
-	"github.com/sosedoff/x/wireguard-manager/model"
+	"github.com/sosedoff/wg-registry/model"
 )
 
 type DbStore struct {

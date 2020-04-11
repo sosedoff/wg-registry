@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/sosedoff/x/wireguard-manager/model"
+	"github.com/sosedoff/wg-registry/model"
 )
 
 type FileData struct {

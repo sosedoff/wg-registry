@@ -5,7 +5,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/sosedoff/x/wireguard-manager/model"
+	"github.com/sosedoff/wg-registry/model"
 )
 
 // Store is an interface for database operations

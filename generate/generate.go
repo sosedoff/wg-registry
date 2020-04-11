@@ -5,8 +5,8 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/sosedoff/x/wireguard-manager/model"
-	"github.com/sosedoff/x/wireguard-manager/store"
+	"github.com/sosedoff/wg-registry/model"
+	"github.com/sosedoff/wg-registry/store"
 )
 
 var (

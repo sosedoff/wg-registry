@@ -1,4 +1,4 @@
-module github.com/sosedoff/x/wireguard-manager
+module github.com/sosedoff/wg-registry
 
 go 1.14
 

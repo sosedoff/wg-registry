@@ -13,9 +13,9 @@ import (
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 	"xojoc.pw/useragent"
 
-	"github.com/sosedoff/x/wireguard-manager/generate"
-	"github.com/sosedoff/x/wireguard-manager/middleware"
-	"github.com/sosedoff/x/wireguard-manager/model"
+	"github.com/sosedoff/wg-registry/generate"
+	"github.com/sosedoff/wg-registry/middleware"
+	"github.com/sosedoff/wg-registry/model"
 )
 
 func New(config *Config) (*gin.Engine, error) {

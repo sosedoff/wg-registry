@@ -9,8 +9,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/sosedoff/x/wireguard-manager/generate"
-	"github.com/sosedoff/x/wireguard-manager/store"
+	"github.com/sosedoff/wg-registry/generate"
+	"github.com/sosedoff/wg-registry/store"
 )
 
 // Controller handles wireguard network configuration
