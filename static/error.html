@@ -1,0 +1,9 @@
+{{ template "layout_header.html" }}
+
+<div class="alert alert-danger">
+  <h4 class="alert-heading">Error has occurred!</h4>
+  <p>{{ .error }}</p>
+  <div><a href="javascript:history.back()" class="btn btn-danger">Go Back</a></div>
+</div>
+
+{{ template "layout_footer.html" }}

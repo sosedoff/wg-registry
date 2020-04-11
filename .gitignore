@@ -1,0 +1,9 @@
+.DS_Store
+.env
+*.sh
+dist/
+bin/
+Procfile
+tmp/
+*.log
+config.json

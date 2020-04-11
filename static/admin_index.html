@@ -1,0 +1,89 @@
+{{ template "layout_header.html" }}
+
+<div class="block">
+  <h1>Server</h1>
+  <div class="card card-body">
+    <dl class="row">
+      <dt class="col-sm-3">Name</dt>
+      <dd class="col-sm-9">{{ .server.Name }}</dd>
+    </dl>
+    <dl class="row">
+      <dt class="col-sm-3">Interface</dt>
+      <dd class="col-sm-9">
+        {{ .server.Interface }} - {{ .server.IPV4Net }}
+        <a href="/admin/peers" class="btn btn-outline-secondary btn-sm">Show Peers</a>
+      </dd>
+    </dl>
+    <dl class="row">
+      <dt class="col-sm-3">Endpoint</dt>
+      <dd class="col-sm-9">{{ .server.PublicAddr }}</dd>
+    </dl>
+    <dl class="row">
+      <dt class="col-sm-3">DNS</dt>
+      <dd class="col-sm-9">{{ .server.DNS }}</dd>
+    </dl>
+  </div>
+</div>
+
+<div class="block">
+  <h1>Users</h1>
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Created</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{ range .users }}
+      <tr>
+        <td>{{ .ID }}</td>
+        <td>{{ .Name }}</td>
+        <td>{{ .Email }}</td>
+        <td>{{ .Role }}</td>
+        <td>{{ time .CreatedAt }}</td>
+      </tr>
+      {{ end }}
+    </tbody>
+  </table>
+</div>
+
+<div class="block">
+  <h1>Devices</h1>
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>User</th>
+        <th>Name</th>
+        <th>IP</th>
+        <th>Active</th>
+        <th>Created</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{ range .devices }}
+        <tr>
+          <td>{{ .ID }}</td>
+          <td>{{ .UserID }}</td>
+          <td>{{ .Name }}</td>
+          <td>{{ .IPV4 }}</td>
+          <td>{{ .Enabled }}</td>
+          <td>{{ time .CreatedAt }}</td>
+        </tr>
+      {{ end }}
+    </tbody>
+  </table>
+</div>
+
+<div class="block">
+  <h1>Wireguard Config</h1>
+  <div class="card card-body">
+    <pre>{{ .config }}</pre>
+  </div>
+</div>
+
+{{ template "layout_footer.html" }}

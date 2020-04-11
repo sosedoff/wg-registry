@@ -1,0 +1,41 @@
+{{ template "layout_header.html" }}
+
+<div class="card block account">
+  <div class="card-body">
+    <div class="row">
+      <div class="col-md-9">
+        You are signed in as <u>{{ .user.Email }}</u>
+      </div>
+      <div class="col-md-3 text-right">
+        {{ if eq .user.Role "admin" }}
+          <a href="/admin" class="btn btn-outline-primary btn-sm">Admin</a>
+        {{ end }}
+        <a href="/auth/signout" class="btn btn-outline-secondary btn-sm">Sign Out</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h3>Your Devices</h3>
+<table class="table devices">
+  <tbody>
+    {{ range .devices }}
+    <tr>
+      <td>
+        <i class="{{ .IconClass }}"></i>
+        {{ .Name }}
+      </td>
+      <td>{{ .IPV4 }}</td>
+      <td class="text-right">
+        <a href="/devices/{{ .ID }}" class="btn btn-outline-secondary btn-sm">Show Config</a>
+        <a href="/devices/{{ .ID }}/delete" class="btn btn-outline-danger btn-sm">Remove</a>
+      </td>
+    </tr>
+    {{ end }}
+  </tbody>
+</table>
+
+<h3>Add a new device</h3>
+{{ template "device_form.html" }}
+
+{{ template "layout_footer.html" }}

@@ -1,0 +1,23 @@
+body {
+  padding: 50px 0px;
+}
+
+.block {
+  margin-bottom: 20px;
+}
+
+.card.device .card-body {
+  padding: 12px;
+}
+
+.qr {
+  margin: 12px 0px;
+  border: 2px solid #eee;
+  border-radius: 4px;;
+  background: #ff00ff;
+}
+
+.config-download {
+  margin: 12px 0px;
+  text-align: center;
+}

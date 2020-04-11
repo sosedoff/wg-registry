@@ -1,0 +1,42 @@
+{{ template "layout_header.html" }}
+
+<div class="text-center">
+  <h2>How to Connect</h2>
+  <p>Follow the instructions below to setup your WireGuard connection.</p>
+</div>
+
+<div class="card device">
+  <div class="card-header">
+    {{ .device.Name }}
+  </div>
+  <div class="card-body">
+    <ul>
+      <li>
+        <a href="https://www.wireguard.com/install/" target="_blank">Download WireGuard</a> client for your operating system.
+      </li>
+      {{ if .device.IsMobile }}
+        <li>
+          <div>Open WireGuard application and add a new tunnel by scanning the barcode below.</div>
+          <div>Alternatively, you can download the config and add it manually.</div>
+          <div class="text-center">
+            <img src="/devices/{{ .device.ID }}/config?qr=1" class="qr" />
+          </div>
+        </li>
+      {{ else }}
+        <li>
+          Download the tunnel configuration file by clicking on the button below.
+        </li>
+        <li>
+          Open WireGuard client application and add a new tunnel from the downloaded file.
+        </li>  
+      {{ end }}
+    </ul>
+
+    <div class="config-download">
+      <a href="/devices/{{ .device.ID }}/config" class="btn btn-outline-primary">Download WireGuard Config</a> 
+      <a href="/" class="btn btn-outline-secondary">Go Back</a><br />
+    </div>
+  </div>
+</div>
+
+{{ template "layout_footer.html" }}
