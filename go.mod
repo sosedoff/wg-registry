@@ -12,6 +12,7 @@ require (
 	github.com/jessevdk/go-flags v1.4.0 // indirect
 	github.com/jinzhu/gorm v1.9.12
 	github.com/skip2/go-qrcode v0.0.0-20191027152451-9434209cb086
+	golang.org/x/crypto v0.0.0-20200204104054-c9f3fb736b72
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
 	golang.zx2c4.com/wireguard/wgctrl v0.0.0-20200324154536-ceff61240acf
 	xojoc.pw/useragent v0.0.0-20200116211053-1ec61d55e8fe

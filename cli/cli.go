@@ -1,9 +1,11 @@
 package cli
 
 import (
+	"crypto/tls"
 	"flag"
 	"fmt"
 	"log"
+	"net/http"
 
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
@@ -80,6 +82,38 @@ func Run() {
 	})
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	if config.LetsEncrypt != nil {
+		certManager, err := service.NewCertManager(config.LetsEncrypt)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		server := &http.Server{
+			Addr:    fmt.Sprintf("%v:%v", "0.0.0.0", config.HTTPSPort),
+			Handler: svc,
+			TLSConfig: &tls.Config{
+				GetCertificate: certManager.GetCertificate,
+				CipherSuites: []uint16{
+					tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+					tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+					tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+					tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+					tls.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,
+					tls.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,
+				},
+				MinVersion:               tls.VersionTLS11,
+				PreferServerCipherSuites: true,
+			},
+		}
+
+		go func() {
+			log.Println("starting https listener on", server.Addr)
+			if err := server.ListenAndServeTLS("", ""); err != nil {
+				log.Fatal("https listener error:", err)
+			}
+		}()
 	}
 
 	listenAddr := fmt.Sprintf("%v:%v", "0.0.0.0", config.HTTPPort)
