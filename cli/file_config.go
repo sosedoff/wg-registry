@@ -64,7 +64,7 @@ func readConfig(path string) (*FileConfig, error) {
 		config.WireGuardBinPath = "wg-quick"
 	}
 	if config.WireGuardPath == "" {
-		config.WireGuardBinPath = "/etc/wireguard"
+		config.WireGuardPath = "/etc/wireguard"
 	}
 
 	return config, nil
