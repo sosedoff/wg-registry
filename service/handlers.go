@@ -14,7 +14,6 @@ import (
 	"xojoc.pw/useragent"
 
 	"github.com/sosedoff/wg-registry/generate"
-	"github.com/sosedoff/wg-registry/middleware"
 	"github.com/sosedoff/wg-registry/model"
 )
 
@@ -30,8 +29,8 @@ func New(config *Config) (*gin.Engine, error) {
 	router.Use(gin.Recovery())
 	router.Use(gin.Logger())
 
-	router.Use(middleware.RejectBots())
-	router.Use(middleware.CookieSession(config.CookieName, config.CookieSecret))
+	router.Use(rejectBots())
+	router.Use(cookieSession(config.CookieName, config.CookieSecret))
 
 	router.Use(setAuth(config))
 	router.Use(setStore(config))

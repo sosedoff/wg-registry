@@ -1,4 +1,4 @@
-package middleware
+package service
 
 import (
 	"errors"
@@ -10,12 +10,7 @@ import (
 	"xojoc.pw/useragent"
 )
 
-var (
-	errForbidden = errors.New("forbidden")
-)
-
-// RejectBots returns user agent handling middleware
-func RejectBots() gin.HandlerFunc {
+func rejectBots() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		agent := useragent.Parse(c.Request.UserAgent())
 		if agent == nil {
@@ -24,12 +19,11 @@ func RejectBots() gin.HandlerFunc {
 		}
 
 		if agent.Type != useragent.Browser {
-			c.AbortWithError(http.StatusForbidden, errForbidden)
+			c.AbortWithError(http.StatusForbidden, errors.New("forbidden"))
 		}
 	}
 }
 
-// CookieSession returns cookie handling middleware
-func CookieSession(name, secret string) gin.HandlerFunc {
+func cookieSession(name, secret string) gin.HandlerFunc {
 	return sessions.Sessions(name, cookie.NewStore([]byte(secret)))
 }
