@@ -107,6 +107,7 @@ func requireUser(c *gin.Context) {
 
 func requireAdmin(c *gin.Context) {
 	user := getUser(c)
+
 	if user.Role != roleAdmin {
 		c.AbortWithError(403, errors.New("Permission denied"))
 		return
@@ -119,7 +120,12 @@ func requireDevice(c *gin.Context) {
 
 	device, err := store.FindUserDevice(user, c.Param("id"))
 	if err != nil {
-		badRequest(c, err)
+		htmlError(c, err)
+		return
+	}
+
+	if device == nil {
+		htmlError(c, errors.New("Device does not exist"))
 		return
 	}
 
