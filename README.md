@@ -5,10 +5,9 @@ Device registry and peer configuration manager for WireGuard
 ## Features
 
 - Minimalistic install
-- Credentials storage in Postgres/Sqlite
 - Authenticate users with Google account
-- Generate server and client configs
 - Automatically configure WireGuard interface
+- Client configuration storage in Postgres/Sqlite/File
 - Self-service
 - LetsEncrypt support
 
