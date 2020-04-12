@@ -55,6 +55,8 @@ func Run() {
 		}
 	}
 
+	httpsEnabled := config.LetsEncrypt != nil && config.LetsEncrypt.Enabled == true
+
 	svc, err := service.New(&service.Config{
 		AssetFS:         assets.Assets,
 		Store:           datastore,
@@ -65,12 +67,13 @@ func Run() {
 		ClientSecret:    config.ClientSecret,
 		ClientDomain:    config.ClientDomain,
 		ClientWhitelist: config.ClientWhitelist,
+		ForceHTTPS:      httpsEnabled,
 	})
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	if config.LetsEncrypt != nil && config.LetsEncrypt.Enabled {
+	if httpsEnabled {
 		certManager, err := service.NewCertManager(config.LetsEncrypt)
 		if err != nil {
 			log.Fatal(err)

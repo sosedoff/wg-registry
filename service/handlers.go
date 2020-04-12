@@ -34,6 +34,10 @@ func New(config *Config) (*gin.Engine, error) {
 	router.SetHTMLTemplate(tpl)
 
 	// Middlware
+	if config.ForceHTTPS {
+		router.Use(forceHTTPS())
+	}
+
 	router.Use(setAuth(config))
 	router.Use(setStore(config))
 	router.Use(setController(config))

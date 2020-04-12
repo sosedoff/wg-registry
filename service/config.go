@@ -16,4 +16,5 @@ type Config struct {
 	ClientSecret    string
 	ClientDomain    string
 	ClientWhitelist []string
+	ForceHTTPS      bool
 }
