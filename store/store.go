@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/apparentlymart/go-cidr/cidr"
 	"github.com/sosedoff/wg-registry/model"
 )
 
@@ -23,7 +24,7 @@ type Store interface {
 	AllUsers() ([]model.User, error)
 	GetDevicesByUser(interface{}) ([]model.Device, error)
 	CreateUser(*model.User) error
-	CreateDevice(*model.Device) error
+	CreateDevice(*model.Server, *model.Device) error
 	DeleteUserDevice(*model.User, *model.Device) error
 	AllocatedIPV4() ([]string, error)
 }
@@ -44,4 +45,41 @@ func Init(connstr string) (Store, error) {
 	default:
 		return nil, errors.New("invalid scheme: " + uri.Scheme)
 	}
+}
+
+// NextIPV4 returns a new IPV4 allocation
+func NextIPV4(store Store, server *model.Server) (string, error) {
+	ipfirst, iplast, err := server.IPV4Range()
+	if err != nil {
+		return "", nil
+	}
+
+	allocated, err := store.AllocatedIPV4()
+	if err != nil {
+		return "", err
+	}
+
+	cur := ipfirst
+	for {
+		taken := false
+
+		for _, val := range allocated {
+			if val == cur.String() {
+				taken = true
+				break
+			}
+		}
+
+		if !taken {
+			break
+		}
+
+		if cur.Equal(iplast) {
+			return "", errors.New("cant allocate address")
+		}
+
+		cur = cidr.Inc(cur)
+	}
+
+	return cur.String(), nil
 }

@@ -261,19 +261,29 @@ func (s *FileStore) CreateUser(user *model.User) error {
 	return s.write()
 }
 
-func (s *FileStore) CreateDevice(device *model.Device) error {
-	if err := device.Validate(); err != nil {
+func (s *FileStore) CreateDevice(server *model.Server, device *model.Device) error {
+	ip, err := NextIPV4(s, server)
+	if err != nil {
 		return err
 	}
 
 	s.Lock()
 	defer s.Unlock()
 
+	if err := device.AssignPrivateKey(); err != nil {
+		return err
+	}
+
 	s.data.DeviceSeq++
 
 	device.ID = s.data.DeviceSeq
 	device.CreatedAt = time.Now()
 	device.UpdatedAt = time.Now()
+	device.IPV4 = ip
+
+	if err := device.Validate(); err != nil {
+		return err
+	}
 
 	s.data.Devices = append(s.data.Devices, *device)
 

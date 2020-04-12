@@ -7,12 +7,10 @@ import (
 
 	"github.com/sosedoff/wg-registry/util"
 
-	"github.com/apparentlymart/go-cidr/cidr"
 	"github.com/gin-gonic/gin"
 	"github.com/skip2/go-qrcode"
 	"golang.org/x/oauth2"
 	"golang.zx2c4.com/wireguard/wgctrl"
-	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 	"xojoc.pw/useragent"
 
 	"github.com/sosedoff/wg-registry/generate"
@@ -62,6 +60,7 @@ func New(config *Config) (*gin.Engine, error) {
 	admin.GET("", handleAdminIndex)
 	admin.GET("/server", handleAdminServer)
 	admin.POST("/server", handleAdminServer)
+	admin.GET("/server/restart", handleAdminRestartServer)
 	admin.GET("/peers", handleAdminPeers)
 
 	// Everything else
@@ -215,6 +214,7 @@ func handleDevice(c *gin.Context) {
 func handleCreateDevice(c *gin.Context) {
 	store := getStore(c)
 	user := getUser(c)
+	controller := getController(c)
 
 	server, err := store.FindServer()
 	if err != nil {
@@ -222,48 +222,7 @@ func handleCreateDevice(c *gin.Context) {
 		return
 	}
 	if server == nil {
-		htmlError(c, "No server found!")
-		return
-	}
-
-	ipfirst, iplast, err := server.IPV4Range()
-	if err != nil {
-		htmlError(c, err)
-		return
-	}
-	ipfirst = cidr.Inc(ipfirst)
-
-	allocated, err := store.AllocatedIPV4()
-	if err != nil {
-		htmlError(c, err)
-		return
-	}
-
-	cur := ipfirst
-
-	for {
-		taken := false
-		for _, val := range allocated {
-			if val == cur.String() {
-				taken = true
-				break
-			}
-		}
-
-		if !taken {
-			break
-		}
-
-		if cur.Equal(iplast) {
-			log.Fatal("not more addrs")
-		}
-
-		cur = cidr.Inc(cur)
-	}
-
-	key, err := wgtypes.GeneratePrivateKey()
-	if err != nil {
-		htmlError(c, err)
+		htmlError(c, "Server does not exist")
 		return
 	}
 
@@ -272,18 +231,18 @@ func handleCreateDevice(c *gin.Context) {
 		Name:                c.Request.FormValue("name"),
 		OS:                  c.Request.FormValue("os"),
 		Enabled:             true,
-		PrivateKey:          key.String(),
-		PublicKey:           key.PublicKey().String(),
-		IPV4:                cur.String(),
 		PersistentKeepalive: 60,
 	}
 
-	if err := store.CreateDevice(device); err != nil {
+	if err := store.CreateDevice(server, device); err != nil {
 		htmlError(c, err)
 		return
 	}
 
-	getController(c).ScheduleApply()
+	// Reload wireguard configuraion
+	if err := controller.Apply(false); err != nil {
+		log.Println("wireguard reload error:", err)
+	}
 
 	c.Redirect(302, fmt.Sprintf("/devices/%d", device.ID))
 }
@@ -325,10 +284,11 @@ func handleDeviceConfig(c *gin.Context) {
 func handleDeleteDevice(c *gin.Context) {
 	user := getUser(c)
 	store := getStore(c)
+	ctl := getController(c)
 
 	device, err := store.FindUserDevice(user, c.Param("id"))
 	if err != nil {
-		badRequest(c, err)
+		htmlError(c, err)
 		return
 	}
 	if device == nil {
@@ -337,8 +297,12 @@ func handleDeleteDevice(c *gin.Context) {
 	}
 
 	if err := store.DeleteUserDevice(user, device); err != nil {
-		badRequest(c, err)
+		htmlError(c, err)
 		return
+	}
+
+	if err := ctl.Apply(false); err != nil {
+		log.Println("wireguard reload error:", err)
 	}
 
 	c.Redirect(302, "/")
@@ -381,6 +345,7 @@ func handleAdminIndex(c *gin.Context) {
 
 func handleAdminServer(c *gin.Context) {
 	store := getStore(c)
+	ctl := getController(c)
 
 	var err error
 	server, err := store.FindServer()
@@ -392,7 +357,7 @@ func handleAdminServer(c *gin.Context) {
 		server = model.ServerWithDefaults()
 	}
 
-	if c.Request.Method == http.MethodGet {
+	if c.Request.Method == http.MethodGet && server.ID == 0 {
 		ip, err := util.FetchPublicIP()
 		if err != nil {
 			htmlError(c, err)
@@ -405,6 +370,7 @@ func handleAdminServer(c *gin.Context) {
 			func() error { return server.Validate() },
 			func() error { return server.AssignPrivateKey() },
 			func() error { return store.SaveServer(server) },
+			func() error { return ctl.Apply(true) },
 		)
 		if err == nil {
 			c.Redirect(302, "/")
@@ -417,6 +383,14 @@ func handleAdminServer(c *gin.Context) {
 		"server": server,
 		"error":  err,
 	})
+}
+
+func handleAdminRestartServer(c *gin.Context) {
+	if err := getController(c).Apply(true); err != nil {
+		htmlError(c, err)
+		return
+	}
+	c.Redirect(302, "/admin/server")
 }
 
 func handleAdminPeers(c *gin.Context) {

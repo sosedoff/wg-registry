@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 	"time"
+
+	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
 
 // Device contains the device details
@@ -21,6 +23,23 @@ type Device struct {
 	PersistentKeepalive int       `json:"persistent_keepalive"`
 	CreatedAt           time.Time `json:"created_at"`
 	UpdatedAt           time.Time `json:"updated_at"`
+}
+
+// AssignPrivateKey assigns private and public keys
+func (d *Device) AssignPrivateKey() error {
+	if d.PrivateKey != "" {
+		return nil
+	}
+
+	key, err := wgtypes.GeneratePrivateKey()
+	if err != nil {
+		return err
+	}
+
+	d.PrivateKey = key.String()
+	d.PublicKey = key.PublicKey().String()
+
+	return nil
 }
 
 // IconClass returns an icon class based on type of device
@@ -63,6 +82,12 @@ func (d *Device) Validate() error {
 	}
 	if d.OS == "" {
 		return errors.New("OS is required")
+	}
+	if d.PrivateKey == "" {
+		return errors.New("Private key is required")
+	}
+	if d.PublicKey == "" {
+		return errors.New("Public key is required")
 	}
 	return nil
 }

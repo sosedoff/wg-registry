@@ -1,8 +1,6 @@
 .PHONY: assets
 assets:
-	go-assets-builder static \
-		-p assets \
-		-o assets/assets.go
+	go-assets-builder static -p assets -o assets/assets.go
 
 docker-build:
 	docker build -t wg-registry .

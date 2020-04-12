@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -15,53 +16,20 @@ import (
 
 // Controller handles wireguard network configuration
 type Controller struct {
+	wgPath      string
 	wgQuickPath string
 	configDir   string
 	store       store.Store
-	updates     chan struct{}
-	stop        chan struct{}
 }
 
 // New returns a new controller
-func New(wgQuickPath string, configDir string, store store.Store) *Controller {
+func New(wgPath string, wgQuickPath string, configDir string, store store.Store) *Controller {
 	return &Controller{
+		wgPath:      wgPath,
 		wgQuickPath: wgQuickPath,
 		configDir:   configDir,
 		store:       store,
-		updates:     make(chan struct{}),
-		stop:        make(chan struct{}),
 	}
-}
-
-// ScheduleApply queues the configuration change
-func (c *Controller) ScheduleApply() {
-	c.updates <- struct{}{}
-}
-
-// Start start the controller worker
-func (c *Controller) Start() {
-	log.Println("starting controller")
-	defer log.Println("stopped controller")
-
-	for {
-		select {
-		case <-c.updates:
-			log.Println("applying configuration")
-			if err := c.Apply(); err != nil {
-				log.Println("config apply error:", err)
-			}
-
-		case <-c.stop:
-			log.Println("stopping controller")
-			return
-		}
-	}
-}
-
-// Stop stops the controller worker
-func (c *Controller) Stop() {
-	close(c.updates)
-	c.stop <- struct{}{}
 }
 
 // Restart restarts the network interface
@@ -70,6 +38,22 @@ func (c *Controller) Restart(iface string) error {
 		return err
 	}
 	return c.Up(iface)
+}
+
+// Reload reloads the interface configuration without a restart
+func (c *Controller) Reload(iface string) error {
+	configPath := filepath.Join(c.configDir, fmt.Sprintf("%s.conf", iface))
+
+	strippedConfig, err := exec.Command(c.wgQuickPath, "strip", configPath).CombinedOutput()
+	if err != nil {
+		log.Println("wg-quick strip failed:", string(strippedConfig))
+		return err
+	}
+
+	syncCmd := exec.Command(c.wgPath, "syncconf", iface)
+	syncCmd.Stdin = bytes.NewReader(strippedConfig)
+
+	return syncCmd.Run()
 }
 
 // Down brings the network interface down
@@ -95,7 +79,7 @@ func (c *Controller) Up(iface string) error {
 }
 
 // Apply updates server configuration and reconfigures network interface
-func (c *Controller) Apply() error {
+func (c *Controller) Apply(restart bool) error {
 	server, err := c.store.FindServer()
 	if err != nil {
 		return err
@@ -116,5 +100,9 @@ func (c *Controller) Apply() error {
 		return err
 	}
 
-	return c.Restart(server.Interface)
+	if restart {
+		return c.Restart(server.Interface)
+	}
+
+	return c.Reload(server.Interface)
 }

@@ -41,17 +41,25 @@ func Run() {
 		log.Fatal("automigrate error:", err)
 	}
 
-	ctl := controller.New(config.WireGuardBinPath, config.WireGuardPath, datastore)
-	go ctl.Start()
+	ctl := controller.New(
+		config.WGPath,
+		config.WGQuickPath,
+		config.WGDir,
+		datastore,
+	)
 
 	server, err := datastore.FindServer()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("cant find server:", err)
 	}
 	if server != nil {
-		log.Println("applying server config")
-		if err := ctl.Apply(); err != nil {
-			log.Fatal(err)
+		log.Println("applying server config with interface restart")
+		if err := ctl.Apply(true); err != nil {
+			log.Fatal("apply failed:", err)
+		}
+		log.Println("applying server config without interface restart")
+		if err := ctl.Apply(false); err != nil {
+			log.Fatal("apply failed:", err)
 		}
 	}
 

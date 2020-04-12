@@ -1,5 +1,7 @@
 # wg-registry
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/sosedoff/wg-registry)](https://goreportcard.com/report/github.com/sosedoff/wg-registry)
+
 Device registry and peer configuration manager for WireGuard
 
 ## Features

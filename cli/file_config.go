@@ -12,19 +12,20 @@ import (
 )
 
 type FileConfig struct {
-	DatabaseURL      string                     `json:"database_url"`
-	CookieName       string                     `json:"cookie_name"`
-	CookieSecret     string                     `json:"cookie_secret"`
-	ClientID         string                     `json:"client_id"`
-	ClientSecret     string                     `json:"client_secret"`
-	ClientDomain     string                     `json:"client_domain"`
-	ClientWhitelist  []string                   `json:"client_whitelist"`
-	WireGuardPath    string                     `json:"wg_path"`
-	WireGuardBinPath string                     `json:"wg_quick_path"`
-	HTTPPort         int                        `json:"http_port"`
-	HTTPSPort        int                        `json:"https_port"`
-	Debug            bool                       `json:"debug"`
-	LetsEncrypt      *service.LetsEncryptConfig `json:"letsencrypt"`
+	DatabaseURL     string                     `json:"database_url"`
+	CookieName      string                     `json:"cookie_name"`
+	CookieSecret    string                     `json:"cookie_secret"`
+	ClientID        string                     `json:"client_id"`
+	ClientSecret    string                     `json:"client_secret"`
+	ClientDomain    string                     `json:"client_domain"`
+	ClientWhitelist []string                   `json:"client_whitelist"`
+	WGDir           string                     `json:"wg_dir"`
+	WGPath          string                     `json:"wg_path"`
+	WGQuickPath     string                     `json:"wg_quick_path"`
+	HTTPPort        int                        `json:"http_port"`
+	HTTPSPort       int                        `json:"https_port"`
+	Debug           bool                       `json:"debug"`
+	LetsEncrypt     *service.LetsEncryptConfig `json:"letsencrypt"`
 }
 
 func readConfig(path string) (*FileConfig, error) {
@@ -63,11 +64,14 @@ func readConfig(path string) (*FileConfig, error) {
 	if config.HTTPSPort == 0 {
 		config.HTTPSPort = 443
 	}
-	if config.WireGuardBinPath == "" {
-		config.WireGuardBinPath = "wg-quick"
+	if config.WGDir == "" {
+		config.WGDir = "/etc/wireguard"
 	}
-	if config.WireGuardPath == "" {
-		config.WireGuardPath = "/etc/wireguard"
+	if config.WGPath == "" {
+		config.WGPath = "wg"
+	}
+	if config.WGQuickPath == "" {
+		config.WGQuickPath = "wg-quick"
 	}
 
 	return config, nil

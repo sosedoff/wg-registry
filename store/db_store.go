@@ -1,6 +1,10 @@
 package store
 
 import (
+	"time"
+
+	"github.com/sosedoff/wg-registry/util"
+
 	"github.com/jinzhu/gorm"
 
 	"github.com/sosedoff/wg-registry/model"
@@ -116,11 +120,23 @@ func (s *DbStore) CreateUser(user *model.User) error {
 	return s.db.Create(user).Error
 }
 
-func (s *DbStore) CreateDevice(device *model.Device) error {
-	if err := device.Validate(); err != nil {
+func (s *DbStore) CreateDevice(server *model.Server, device *model.Device) error {
+	ip, err := NextIPV4(s, server)
+	if err != nil {
 		return err
 	}
-	return s.db.Create(device).Error
+	if err := device.AssignPrivateKey(); err != nil {
+		return err
+	}
+
+	device.CreatedAt = time.Now()
+	device.UpdatedAt = time.Now()
+	device.IPV4 = ip
+
+	return util.ErrChain(
+		func() error { return device.Validate() },
+		func() error { return s.db.Create(device).Error },
+	)
 }
 
 func (s *DbStore) DeleteUserDevice(user *model.User, device *model.Device) error {
