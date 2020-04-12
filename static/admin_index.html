@@ -10,8 +10,7 @@
     <dl class="row">
       <dt class="col-sm-3">Interface</dt>
       <dd class="col-sm-9">
-        {{ .server.Interface }} - {{ .server.IPV4Net }}
-        <a href="/admin/peers" class="btn btn-outline-secondary btn-sm">Show Peers</a>
+        {{ .server.Interface }} - {{ .server.IPV4Net }} <span class="text-muted">({{ .server.IPV4Count }} addresses)</span>
       </dd>
     </dl>
     <dl class="row">
@@ -21,6 +20,13 @@
     <dl class="row">
       <dt class="col-sm-3">DNS</dt>
       <dd class="col-sm-9">{{ .server.DNS }}</dd>
+    </dl>
+    <dl class="row">
+      <dt class="col-sm-3"></dt>
+      <dd class="col-sm9">
+        <a href="/admin/server" class="btn btn-outline-primary">Change Settings</a>
+        <a href="/admin/peers" class="btn btn-outline-secondary">Show Peers</a>
+      </dd>
     </dl>
   </div>
 </div>

@@ -15,6 +15,7 @@ type Store interface {
 	FindUserByID(interface{}) (*model.User, error)
 	FindUserByEmail(string) (*model.User, error)
 	FindServer() (*model.Server, error)
+	SaveServer(*model.Server) error
 	CreateServer(*model.Server) error
 	FindDevice(interface{}) (*model.Device, error)
 	FindUserDevice(*model.User, interface{}) (*model.Device, error)

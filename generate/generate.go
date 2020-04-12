@@ -33,6 +33,7 @@ AllowedIPs = {{ .IPV4 }}/32
 [Interface]
 PrivateKey = {{ .privateKey }}
 Address = {{ .address }}
+{{ if ne .dns "" }}DNS = {{ .dns }}{{ end }}
 {{ range .peers }}
 [Peer]
 PublicKey = {{ .PublicKey }}
@@ -88,6 +89,7 @@ func ClientConfig(store store.Store, device *model.Device, server *model.Server)
 		"privateKey": device.PrivateKey,
 		"address":    device.PeerIP(server.IPV4Net),
 		"keepAlive":  device.PersistentKeepalive,
+		"dns":        server.DNS,
 		"peers":      []*model.Server{server},
 	})
 

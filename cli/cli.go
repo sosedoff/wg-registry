@@ -6,18 +6,13 @@ import (
 	"log"
 	"net/http"
 
-	_ "github.com/jinzhu/gorm/dialects/postgres"
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
-
 	"github.com/gin-gonic/gin"
-	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
 
 	"github.com/sosedoff/wg-registry/assets"
 	"github.com/sosedoff/wg-registry/controller"
-	"github.com/sosedoff/wg-registry/model"
 	"github.com/sosedoff/wg-registry/service"
 	"github.com/sosedoff/wg-registry/store"
-	"github.com/sosedoff/wg-registry/util"
 )
 
 func Run() {
@@ -53,19 +48,11 @@ func Run() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	if server == nil {
-		log.Println("creating default server")
-		s, err := configureDefaultServer(datastore)
-		if err != nil {
-			log.Fatal(err)
-		}
-
+	if server != nil {
 		log.Println("applying server config")
 		if err := ctl.Apply(); err != nil {
 			log.Fatal(err)
 		}
-
-		server = s
 	}
 
 	svc, err := service.New(&service.Config{
@@ -83,7 +70,7 @@ func Run() {
 		log.Fatal(err)
 	}
 
-	if config.LetsEncrypt != nil {
+	if config.LetsEncrypt != nil && config.LetsEncrypt.Enabled {
 		certManager, err := service.NewCertManager(config.LetsEncrypt)
 		if err != nil {
 			log.Fatal(err)
@@ -115,36 +102,4 @@ func setGinDefaults() {
 	gin.SetMode(gin.ReleaseMode)
 	gin.DisableConsoleColor()
 	log.SetFlags(log.LstdFlags)
-}
-
-func configureDefaultServer(store store.Store) (*model.Server, error) {
-	endpoint, err := util.FetchPublicIP()
-	if err != nil {
-		return nil, err
-	}
-
-	key, err := wgtypes.GeneratePrivateKey()
-	if err != nil {
-		return nil, err
-	}
-
-	iface := "wg0"
-	postUp := fmt.Sprintf("iptables -A FORWARD -i %s -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE; ip6tables -A FORWARD -i %s -j ACCEPT; ip6tables -t nat -A POSTROUTING -o eth0 -j MASQUERADE", iface, iface)
-	postDown := fmt.Sprintf("iptables -D FORWARD -i %s -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE; ip6tables -D FORWARD -i %s -j ACCEPT; ip6tables -t nat -D POSTROUTING -o eth0 -j MASQUERADE", iface, iface)
-
-	server := &model.Server{
-		Name:       "private",
-		Interface:  iface,
-		Endpoint:   endpoint,
-		PrivateKey: key.String(),
-		PublicKey:  key.PublicKey().String(),
-		IPV4Net:    "10.10.0.0/20",
-		IPV4Addr:   "10.10.0.0/20",
-		ListenPort: 51820,
-		PostUp:     postUp,
-		PostDown:   postDown,
-	}
-
-	err = store.CreateServer(server)
-	return server, err
 }

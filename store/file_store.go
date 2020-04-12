@@ -159,6 +159,17 @@ func (s *FileStore) FindServer() (*model.Server, error) {
 	return nil, nil
 }
 
+func (s *FileStore) SaveServer(record *model.Server) error {
+	s.Lock()
+	defer s.Unlock()
+
+	s.data.ServersSeq++
+	record.ID = s.data.ServersSeq
+
+	s.data.Servers = []model.Server{*record}
+	return s.write()
+}
+
 func (s *FileStore) CreateServer(server *model.Server) error {
 	s.Lock()
 	defer s.Unlock()

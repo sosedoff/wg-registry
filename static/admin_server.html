@@ -1,0 +1,50 @@
+{{ template "layout_header.html" }}
+
+<h1>Configure WireGuard server</h1>
+
+{{ if .error }}
+  <div class="alert alert-danger">{{ .error }}</div>
+{{ end }}
+
+<form action="/admin/server" method="post">
+  <div class="form-group">
+    <label>Name</label>
+    <input class="form-control" type="text" name="name" value="{{ .server.Name }}" />
+  </div>
+  <div class="row">
+    <div class="form-group col-md-8">
+      <label>Endpoint</label>
+      <input class="form-control" type="text" name="endpoint" value="{{ .server.Endpoint }}" />
+    </div>
+    <div class="form-group col-md-4">
+      <label>Listen Port</label>
+      <input class="form-control" type="text" name="listen_port" value="{{ .server.ListenPort }}" />
+    </div>
+  </div>
+  <div class="form-group">
+    <label>Interface</label>
+    <input class="form-control" type="text" name="interface" value="{{ .server.Interface }}" />
+  </div>
+  <div class="row">
+    <div class="form-group col-md-6">
+      <label>Network</label>
+      <input class="form-control" type="text" name="ipv4_net" value="{{ .server.IPV4Net }}" />
+    </div>
+    <div class="form-group col-md-6">
+      <label>Connect Mode</label>
+      <select name="mode" class="form-control">
+        <option value="split" selected>Split</option>
+        <option value="full">Full</option>
+      </select>
+    </div>
+  </div>
+  <div class="form-group">
+    <label>DNS Servers</label>
+    <input class="form-control" type="text" name="dns" value="{{ .server.DNS }}" placeholder="Optional" />
+  </div>
+  <div class="form-actions">
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+  </div>
+</form>
+
+{{ template "layout_footer.html" }}

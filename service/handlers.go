@@ -3,6 +3,9 @@ package service
 import (
 	"fmt"
 	"log"
+	"net/http"
+
+	"github.com/sosedoff/wg-registry/util"
 
 	"github.com/apparentlymart/go-cidr/cidr"
 	"github.com/gin-gonic/gin"
@@ -53,6 +56,8 @@ func New(config *Config) (*gin.Engine, error) {
 	// Admin routes
 	admin := router.Group("/admin", requireUser, requireAdmin)
 	admin.GET("", handleAdminIndex)
+	admin.GET("/server", handleAdminServer)
+	admin.POST("/server", handleAdminServer)
 	admin.GET("/peers", handleAdminPeers)
 
 	// Everything else
@@ -167,6 +172,17 @@ func handleSignout(c *gin.Context) {
 func handleIndex(c *gin.Context) {
 	store := getStore(c)
 	user := getUser(c)
+
+	server, err := store.FindServer()
+	if err != nil {
+		htmlError(c, err)
+		return
+	}
+	if server == nil && user.Role == roleAdmin {
+		c.Redirect(302, "/admin/server")
+		c.Abort()
+		return
+	}
 
 	devices, err := store.GetDevicesByUser(user.ID)
 	if err != nil {
@@ -356,6 +372,46 @@ func handleAdminIndex(c *gin.Context) {
 		"users":   users,
 		"server":  server,
 		"config":  string(config),
+	})
+}
+
+func handleAdminServer(c *gin.Context) {
+	store := getStore(c)
+
+	var err error
+	server, err := store.FindServer()
+	if err != nil {
+		htmlError(c, err)
+		return
+	}
+	if server == nil {
+		server = model.ServerWithDefaults()
+	}
+
+	if c.Request.Method == http.MethodGet {
+		ip, err := util.FetchPublicIP()
+		if err != nil {
+			htmlError(c, err)
+			return
+		}
+		server.Endpoint = ip
+	} else if c.Request.Method == http.MethodPost {
+		err = util.ErrChain(
+			func() error { return c.ShouldBind(&server) },
+			func() error { return server.Validate() },
+			func() error { return server.AssignPrivateKey() },
+			func() error { return store.SaveServer(server) },
+		)
+		if err == nil {
+			c.Redirect(302, "/")
+			c.Abort()
+			return
+		}
+	}
+
+	c.HTML(200, "admin_server.html", gin.H{
+		"server": server,
+		"error":  err,
 	})
 }
 

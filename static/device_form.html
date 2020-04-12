@@ -1,18 +1,20 @@
-<form action="/devices" method="post">
-  <div class="form-group mb-2">
-    <label class="my-1 mr-2">Name</label>
-    <input type="text" name="name" class="form-control" value="{{ .newDeviceName }}" placeholder="ex: Work Laptop" />
+<form action="/devices" method="post" class="row">
+  <div class="col-md-6">
+    <div class="form-group">
+      <label>Device Name</label>
+      <input type="text" name="name" class="form-control" value="{{ .newDeviceName }}" placeholder="ex: Work Laptop" />
+    </div>
+    <div class="form-group">
+      <label>Platform</label>
+      <select name="os" class="form-control">
+        <option selected disabled value="">Please select</option>
+        <option value="mac">Mac</option>
+        <option value="linux">Linux</option>
+        <option value="windows">Windows</option>
+        <option value="ios">iOS</option>
+        <option value="android">Android</option>
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary mb-2">Add Device</button>
   </div>
-  <div class="form-group mb-2 text-small">
-    <label>Platform</label>
-    <select name="os" class="form-control">
-      <option selected disabled value="">Please select</option>
-      <option value="mac">Mac</option>
-      <option value="linux">Linux</option>
-      <option value="windows">Windows</option>
-      <option value="ios">iOS</option>
-      <option value="android">Android</option>
-    </select>
-  </div>
-  <button type="submit" class="btn btn-primary mb-2">Add Device</button>
 </form>

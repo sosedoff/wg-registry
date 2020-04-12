@@ -62,6 +62,13 @@ func (s *DbStore) FindServer() (*model.Server, error) {
 	return server, err
 }
 
+func (s *DbStore) SaveServer(record *model.Server) error {
+	if record.ID == 0 {
+		return s.db.Create(record).Error
+	}
+	return s.db.Update(record).Error
+}
+
 func (s *DbStore) CreateServer(server *model.Server) error {
 	if err := server.Validate(); err != nil {
 		return err
