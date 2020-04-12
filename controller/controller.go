@@ -1,11 +1,11 @@
 package controller
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -42,18 +42,26 @@ func (c *Controller) Restart(iface string) error {
 
 // Reload reloads the interface configuration without a restart
 func (c *Controller) Reload(iface string) error {
-	configPath := filepath.Join(c.configDir, fmt.Sprintf("%s.conf", iface))
-
-	strippedConfig, err := exec.Command(c.wgQuickPath, "strip", configPath).CombinedOutput()
+	strippedConfig, err := exec.Command(c.wgQuickPath, "strip", iface).Output()
 	if err != nil {
 		log.Println("wg-quick strip failed:", string(strippedConfig))
 		return err
 	}
 
-	syncCmd := exec.Command(c.wgPath, "syncconf", iface)
-	syncCmd.Stdin = bytes.NewReader(strippedConfig)
+	tmpPath := filepath.Join(c.configDir, "temp")
+	defer os.Remove(tmpPath)
 
-	return syncCmd.Run()
+	if err := ioutil.WriteFile(tmpPath, strippedConfig, 0644); err != nil {
+		return err
+	}
+
+	out, err := exec.Command(c.wgPath, "syncconf", iface, tmpPath).CombinedOutput()
+	if err != nil {
+		log.Println("wg-quick strip failed:", string(out))
+		return err
+	}
+
+	return err
 }
 
 // Down brings the network interface down
