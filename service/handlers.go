@@ -5,7 +5,6 @@ import (
 	"log"
 
 	"github.com/apparentlymart/go-cidr/cidr"
-	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/skip2/go-qrcode"
 	"golang.org/x/oauth2"
@@ -20,22 +19,25 @@ import (
 func New(config *Config) (*gin.Engine, error) {
 	router := gin.New()
 
+	// Defaults
+	router.Use(gin.Recovery())
+	router.Use(gin.Logger())
+
+	// HTML templates
 	tpl, err := loadTemplate(config.AssetFS)
 	if err != nil {
 		return nil, err
 	}
 	router.SetHTMLTemplate(tpl)
 
-	router.Use(gin.Recovery())
-	router.Use(gin.Logger())
-
-	router.Use(rejectBots())
-	router.Use(cookieSession(config.CookieName, config.CookieSecret))
-
+	// Middlware
 	router.Use(setAuth(config))
 	router.Use(setStore(config))
 	router.Use(setController(config))
+	router.Use(rejectBots())
+	router.Use(cookieSession(config.CookieName, config.CookieSecret))
 
+	// User routes
 	router.GET("/", requireUser, handleIndex)
 	router.POST("/devices", requireUser, handleCreateDevice)
 	router.GET("/devices/:id", requireUser, requireDevice, handleDevice)
@@ -81,26 +83,26 @@ func handleAuthCallback(c *gin.Context) {
 
 	tok, err := conf.Exchange(oauth2.NoContext, c.Query("code"))
 	if err != nil {
-		c.String(400, err.Error())
+		htmlError(c, err)
 		return
 	}
 
 	client := conf.Client(oauth2.NoContext, tok)
 	resp, err := client.Get("https://www.googleapis.com/oauth2/v3/userinfo")
 	if err != nil {
-		badRequest(c, err)
+		htmlError(c, err)
 		return
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode >= 400 {
-		badRequest(c, "Request failed")
+		htmlError(c, "Google user info request failed")
 		return
 	}
 
 	info, err := googleAuthFromResponse(resp)
 	if err != nil {
-		badRequest(c, err)
+		htmlError(c, err)
 		return
 	}
 
@@ -113,7 +115,7 @@ func handleAuthCallback(c *gin.Context) {
 			}
 		}
 		if !whitelisted {
-			badRequest(c, "Email address is not permitted")
+			htmlError(c, "Email address is not permitted")
 			return
 		}
 	}
@@ -121,7 +123,7 @@ func handleAuthCallback(c *gin.Context) {
 	store := getStore(c)
 	user, err := store.FindUserByEmail(info.Email)
 	if err != nil {
-		badRequest(c, err)
+		htmlError(c, err)
 		return
 	}
 	if user == nil {
@@ -134,7 +136,7 @@ func handleAuthCallback(c *gin.Context) {
 
 		count, err := store.UserCount()
 		if err != nil {
-			badRequest(c, err)
+			htmlError(c, err)
 			return
 		}
 		if count == 0 {
@@ -142,12 +144,12 @@ func handleAuthCallback(c *gin.Context) {
 		}
 
 		if err := store.CreateUser(user); err != nil {
-			badRequest(c, err)
+			htmlError(c, err)
 			return
 		}
-	}
 
-	session := sessions.Default(c)
+	}
+	session := getSession(c)
 	session.Set("uid", user.ID)
 	session.Save()
 
@@ -155,7 +157,7 @@ func handleAuthCallback(c *gin.Context) {
 }
 
 func handleSignout(c *gin.Context) {
-	session := sessions.Default(c)
+	session := getSession(c)
 	session.Delete("uid")
 	session.Save()
 
@@ -168,7 +170,7 @@ func handleIndex(c *gin.Context) {
 
 	devices, err := store.GetDevicesByUser(user.ID)
 	if err != nil {
-		badRequest(c, err)
+		htmlError(c, err)
 		return
 	}
 
