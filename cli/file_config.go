@@ -5,14 +5,15 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"os"
 	"time"
+
+	"github.com/sosedoff/wg-registry/util"
 
 	"github.com/sosedoff/wg-registry/service"
 )
 
 type FileConfig struct {
-	DatabaseURL     string                     `json:"database_url"`
+	Store           string                     `json:"store"`
 	CookieName      string                     `json:"cookie_name"`
 	CookieSecret    string                     `json:"cookie_secret"`
 	ClientID        string                     `json:"client_id"`
@@ -48,15 +49,19 @@ func readConfig(path string) (*FileConfig, error) {
 	if config.ClientDomain == "" {
 		return nil, errors.New("client_domain is not set")
 	}
-
-	if config.DatabaseURL == "" {
-		config.DatabaseURL = os.Getenv("DATABASE_URL")
+	if config.Store == "" {
+		config.Store = "/etc/wg-registry/data.json"
 	}
 	if config.CookieName == "" {
 		config.CookieName = "wg-registry"
 	}
 	if config.CookieSecret == "" {
-		config.CookieSecret = fmt.Sprintf("%v", time.Now())
+		hex, err := util.RandomHex(32)
+		if err == nil {
+			config.CookieSecret = hex
+		} else {
+			config.CookieSecret = fmt.Sprintf("%v", time.Now().UnixNano())
+		}
 	}
 	if config.HTTPPort == 0 {
 		config.HTTPPort = 80

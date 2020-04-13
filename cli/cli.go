@@ -33,7 +33,7 @@ func Run() {
 		log.Fatal("config error:", err)
 	}
 
-	datastore, err := store.Init(config.DatabaseURL)
+	datastore, err := store.Init(config.Store)
 	if err != nil {
 		log.Fatal(err)
 	}
