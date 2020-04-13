@@ -46,6 +46,7 @@ Planned:
 - Store encryption
 - More authentication providers
 - IPV6 support
+- Run in Docker
 
 ## Requirements
 
