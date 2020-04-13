@@ -37,6 +37,7 @@ run a HTTP proxy (nginx, etc) in front of the registry and requires almost no co
 - Authenticate users with a Google account
 - Automatic WireGuard interface configuration
 - Self-service device management
+- Run in full or split tunnel mode
 - Client configuration storage in PostgreSQL/SQLite/JSON-file
 - Build-in LetsEncrypt support
 
