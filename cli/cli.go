@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
@@ -15,6 +16,17 @@ import (
 	"github.com/sosedoff/wg-registry/store"
 )
 
+func printVersion() {
+	chunks := []string{fmt.Sprintf("%s v%s", Name, Version)}
+	if GitCommit != "" {
+		chunks = append(chunks, fmt.Sprintf("(git: %s)", GitCommit))
+	}
+	if GoVersion != "" {
+		chunks = append(chunks, fmt.Sprintf("(go: %s)", GoVersion))
+	}
+	fmt.Println(strings.Join(chunks, " "))
+}
+
 func Run() {
 	// TODO: how to set default on engine level
 	setGinDefaults()
@@ -23,6 +35,8 @@ func Run() {
 
 	flag.StringVar(&configPath, "c", "", "Configuration file")
 	flag.Parse()
+
+	printVersion()
 
 	if configPath == "" {
 		log.Fatal("config is required")
