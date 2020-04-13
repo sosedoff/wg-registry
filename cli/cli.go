@@ -55,25 +55,27 @@ func Run() {
 		log.Fatal("automigrate error:", err)
 	}
 
-	ctl := controller.New(
-		config.WGPath,
-		config.WGQuickPath,
-		config.WGDir,
-		datastore,
-	)
+	if !config.DisableWGChanges {
+		ctl := controller.New(
+			config.WGPath,
+			config.WGQuickPath,
+			config.WGDir,
+			datastore,
+		)
 
-	server, err := datastore.FindServer()
-	if err != nil {
-		log.Fatal("cant find server:", err)
-	}
-	if server != nil {
-		log.Println("applying server config with interface restart")
-		if err := ctl.Apply(true); err != nil {
-			log.Fatal("apply failed:", err)
+		server, err := datastore.FindServer()
+		if err != nil {
+			log.Fatal("cant find server:", err)
 		}
-		log.Println("applying server config without interface restart")
-		if err := ctl.Apply(false); err != nil {
-			log.Fatal("apply failed:", err)
+		if server != nil {
+			log.Println("applying server config with interface restart")
+			if err := ctl.Apply(true); err != nil {
+				log.Fatal("apply failed:", err)
+			}
+			log.Println("applying server config without interface restart")
+			if err := ctl.Apply(false); err != nil {
+				log.Fatal("apply failed:", err)
+			}
 		}
 	}
 

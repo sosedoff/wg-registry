@@ -214,7 +214,7 @@ func handleDevice(c *gin.Context) {
 func handleCreateDevice(c *gin.Context) {
 	store := getStore(c)
 	user := getUser(c)
-	controller := getController(c)
+	ctl := getController(c)
 
 	server, err := store.FindServer()
 	if err != nil {
@@ -239,9 +239,11 @@ func handleCreateDevice(c *gin.Context) {
 		return
 	}
 
-	// Reload wireguard configuraion
-	if err := controller.Apply(false); err != nil {
-		log.Println("wireguard reload error:", err)
+	// Reload wireguard configuration
+	if ctl != nil {
+		if err := ctl.Apply(false); err != nil {
+			log.Println("wireguard reload error:", err)
+		}
 	}
 
 	c.Redirect(302, fmt.Sprintf("/devices/%d", device.ID))
@@ -301,8 +303,10 @@ func handleDeleteDevice(c *gin.Context) {
 		return
 	}
 
-	if err := ctl.Apply(false); err != nil {
-		log.Println("wireguard reload error:", err)
+	if ctl != nil {
+		if err := ctl.Apply(false); err != nil {
+			log.Println("wireguard reload error:", err)
+		}
 	}
 
 	c.Redirect(302, "/")
@@ -370,7 +374,12 @@ func handleAdminServer(c *gin.Context) {
 			func() error { return server.Validate() },
 			func() error { return server.AssignPrivateKey() },
 			func() error { return store.SaveServer(server) },
-			func() error { return ctl.Apply(true) },
+			func() error {
+				if ctl != nil {
+					return ctl.Apply(true)
+				}
+				return nil
+			},
 		)
 		if err == nil {
 			c.Redirect(302, "/")
@@ -386,10 +395,14 @@ func handleAdminServer(c *gin.Context) {
 }
 
 func handleAdminRestartServer(c *gin.Context) {
-	if err := getController(c).Apply(true); err != nil {
-		htmlError(c, err)
-		return
+	ctl := getController(c)
+	if ctl != nil {
+		if err := ctl.Apply(true); err != nil {
+			htmlError(c, err)
+			return
+		}
 	}
+
 	c.Redirect(302, "/admin/server")
 }
 

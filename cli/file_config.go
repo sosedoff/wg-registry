@@ -13,20 +13,21 @@ import (
 )
 
 type FileConfig struct {
-	Store           string                     `json:"store"`
-	CookieName      string                     `json:"cookie_name"`
-	CookieSecret    string                     `json:"cookie_secret"`
-	ClientID        string                     `json:"client_id"`
-	ClientSecret    string                     `json:"client_secret"`
-	ClientDomain    string                     `json:"client_domain"`
-	ClientWhitelist []string                   `json:"client_whitelist"`
-	WGDir           string                     `json:"wg_dir"`
-	WGPath          string                     `json:"wg_path"`
-	WGQuickPath     string                     `json:"wg_quick_path"`
-	HTTPPort        int                        `json:"http_port"`
-	HTTPSPort       int                        `json:"https_port"`
-	Debug           bool                       `json:"debug"`
-	LetsEncrypt     *service.LetsEncryptConfig `json:"letsencrypt"`
+	Store            string                     `json:"store"`
+	CookieName       string                     `json:"cookie_name"`
+	CookieSecret     string                     `json:"cookie_secret"`
+	ClientID         string                     `json:"client_id"`
+	ClientSecret     string                     `json:"client_secret"`
+	ClientDomain     string                     `json:"client_domain"`
+	ClientWhitelist  []string                   `json:"client_whitelist"`
+	WGDir            string                     `json:"wg_dir"`
+	WGPath           string                     `json:"wg_path"`
+	WGQuickPath      string                     `json:"wg_quick_path"`
+	DisableWGChanges bool                       `json:"disable_wg_changes"`
+	HTTPPort         int                        `json:"http_port"`
+	HTTPSPort        int                        `json:"https_port"`
+	Debug            bool                       `json:"debug"`
+	LetsEncrypt      *service.LetsEncryptConfig `json:"letsencrypt"`
 }
 
 func readConfig(path string) (*FileConfig, error) {
