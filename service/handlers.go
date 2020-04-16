@@ -7,12 +7,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/skip2/go-qrcode"
-	"github.com/sosedoff/wg-registry/util"
 	"golang.org/x/oauth2"
 	"xojoc.pw/useragent"
 
 	"github.com/sosedoff/wg-registry/generate"
 	"github.com/sosedoff/wg-registry/model"
+	"github.com/sosedoff/wg-registry/util"
 )
 
 func New(config *Config) (*gin.Engine, error) {

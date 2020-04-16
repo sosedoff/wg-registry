@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/jessevdk/go-assets"
+
 	"github.com/sosedoff/wg-registry/controller"
 	"github.com/sosedoff/wg-registry/store"
 )

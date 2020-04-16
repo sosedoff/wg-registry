@@ -3,11 +3,10 @@ package store
 import (
 	"time"
 
-	"github.com/sosedoff/wg-registry/util"
-
 	"github.com/jinzhu/gorm"
 
 	"github.com/sosedoff/wg-registry/model"
+	"github.com/sosedoff/wg-registry/util"
 )
 
 type DbStore struct {
