@@ -55,8 +55,10 @@ func Run() {
 		log.Fatal("automigrate error:", err)
 	}
 
+	var ctl *controller.Controller
+
 	if !config.DisableWGChanges {
-		ctl := controller.New(
+		ctl = controller.New(
 			config.WGPath,
 			config.WGQuickPath,
 			config.WGDir,

@@ -96,7 +96,7 @@ func (c *Controller) Apply(restart bool) error {
 		return errors.New("server not found")
 	}
 
-	config, err := generate.ServerConfig(c.store)
+	config, err := generate.ServerConfig(c.store, server)
 	if err != nil {
 		return err
 	}

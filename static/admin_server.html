@@ -21,26 +21,34 @@
       <input class="form-control" type="text" name="listen_port" value="{{ .server.ListenPort }}" />
     </div>
   </div>
-  <div class="form-group">
-    <label>Interface</label>
-    <input class="form-control" type="text" name="interface" value="{{ .server.Interface }}" />
-  </div>
   <div class="row">
-    <div class="form-group col-md-6">
+    <div class="form-group col-md-4">
+      <label>Interface</label>
+      <input class="form-control" type="text" name="interface" value="{{ .server.Interface }}" />
+    </div>
+    <div class="form-group col-md-4">
       <label>Network</label>
       <input class="form-control" type="text" name="ipv4_net" value="{{ .server.IPV4Net }}" />
     </div>
-    <div class="form-group col-md-6">
+    <div class="form-group col-md-4">
       <label>Connect Mode</label>
       <select name="mode" class="form-control">
-        <option value="split" selected>Split</option>
-        <option value="full">Full</option>
+        <option value="split" selected>Split Tunnel</option>
+        <option value="full">Full Tunnel</option>
       </select>
     </div>
   </div>
   <div class="form-group">
     <label>DNS Servers</label>
     <input class="form-control" type="text" name="dns" value="{{ .server.DNS }}" placeholder="Optional" />
+  </div>
+  <div class="form-group">
+    <label>Post-Up Commands</label>
+    <input class="form-control" type="text" name="interface" value="{{ .server.PostUp }}" />
+  </div>
+  <div class="form-group">
+    <label>Post-Down Commands</label>
+    <input class="form-control" type="text" name="interface" value="{{ .server.PostDown }}" />
   </div>
   <div class="form-actions">
     <button type="submit" class="btn btn-primary">Save Changes</button>

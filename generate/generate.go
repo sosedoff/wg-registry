@@ -45,13 +45,8 @@ AllowedIPs = {{ .IPV4Net }}
 )
 
 // ServerConfig generates wireguard server config
-func ServerConfig(store store.Store) ([]byte, error) {
+func ServerConfig(store store.Store, server *model.Server) ([]byte, error) {
 	tpl, err := template.New("config").Parse(serverTemplate)
-	if err != nil {
-		return nil, err
-	}
-
-	server, err := store.FindServer()
 	if err != nil {
 		return nil, err
 	}

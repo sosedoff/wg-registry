@@ -23,6 +23,16 @@ type Device struct {
 	PersistentKeepalive int       `json:"persistent_keepalive"`
 	CreatedAt           time.Time `json:"created_at"`
 	UpdatedAt           time.Time `json:"updated_at"`
+
+	peerInfo *wgtypes.Peer
+}
+
+func (d *Device) SetPeerInfo(info *wgtypes.Peer) {
+	d.peerInfo = info
+}
+
+func (d *Device) GetPeerInfo() *wgtypes.Peer {
+	return d.peerInfo
 }
 
 // AssignPrivateKey assigns private and public keys

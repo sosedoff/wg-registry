@@ -30,8 +30,8 @@ type Server struct {
 	IPV6Net    string    `json:"ipv6_net"`
 	DNS        string    `json:"dns" form:"dns"`
 	ListenPort int       `json:"listen_port" form:"listen_port"`
-	PostUp     string    `json:"postup"`
-	PostDown   string    `json:"postdown"`
+	PostUp     string    `json:"postup" form:"post_up"`
+	PostDown   string    `json:"postdown" form:"post_down"`
 	CreatedAt  time.Time `json:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at"`
 }

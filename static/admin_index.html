@@ -1,34 +1,39 @@
 {{ template "layout_header.html" }}
 
 <div class="block">
-  <h1>Server</h1>
-  <div class="card card-body">
-    <dl class="row">
-      <dt class="col-sm-3">Name</dt>
-      <dd class="col-sm-9">{{ .server.Name }}</dd>
-    </dl>
-    <dl class="row">
-      <dt class="col-sm-3">Interface</dt>
-      <dd class="col-sm-9">
-        {{ .server.Interface }} - {{ .server.IPV4Net }} <span class="text-muted">({{ .server.IPV4Count }} addresses)</span>
-      </dd>
-    </dl>
-    <dl class="row">
-      <dt class="col-sm-3">Endpoint</dt>
-      <dd class="col-sm-9">{{ .server.PublicAddr }}</dd>
-    </dl>
-    <dl class="row">
-      <dt class="col-sm-3">DNS</dt>
-      <dd class="col-sm-9">{{ .server.DNS }}</dd>
-    </dl>
-    <dl class="row">
-      <dt class="col-sm-3"></dt>
-      <dd class="col-sm9">
-        <a href="/admin/server" class="btn btn-outline-primary">Change Settings</a>
-        <a href="/admin/server/restart" class="btn btn-outline-secondary">Restart WireGuard</a>
-        <a href="/admin/peers" class="btn btn-outline-secondary">Show Peers</a>
-      </dd>
-    </dl>
+  <div class="card">
+    <div class="card-header">
+      Server Details
+    </div>
+    <div class="card-body">
+      <dl class="row">
+        <dt class="col-sm-3">Name</dt>
+        <dd class="col-sm-9">{{ .server.Name }}</dd>
+      </dl>
+      <dl class="row">
+        <dt class="col-sm-3">Interface</dt>
+        <dd class="col-sm-9">
+          {{ .server.Interface }} - {{ .server.IPV4Net }} <span class="text-muted">({{ .server.IPV4Count }} addresses)</span>
+        </dd>
+      </dl>
+      <dl class="row">
+        <dt class="col-sm-3">Endpoint</dt>
+        <dd class="col-sm-9">{{ .server.PublicAddr }}</dd>
+      </dl>
+      {{ if ne .server.DNS "" }}
+        <dl class="row">
+          <dt class="col-sm-3">DNS</dt>
+          <dd class="col-sm-9">{{ .server.DNS }}</dd>
+        </dl>
+      {{ end }}
+      <dl class="row">
+        <dt class="col-sm-3"></dt>
+        <dd class="col-sm9">
+          <a href="/admin/server" class="btn btn-outline-primary">Settings</a>
+          <a href="/admin/server/restart" class="btn btn-outline-secondary">Reload Configuration</a>
+        </dd>
+      </dl>
+    </div>
   </div>
 </div>
 
@@ -67,8 +72,9 @@
         <th>User</th>
         <th>Name</th>
         <th>IP</th>
-        <th>Active</th>
         <th>Created</th>
+        <th>Last Seen</th>
+        <th>Endpoint</th>
       </tr>
     </thead>
     <tbody>
@@ -78,8 +84,15 @@
           <td>{{ .UserID }}</td>
           <td>{{ .Name }}</td>
           <td>{{ .IPV4 }}</td>
-          <td>{{ .Enabled }}</td>
           <td>{{ time .CreatedAt }}</td>
+          {{ with .GetPeerInfo }}
+            <td>{{ time .LastHandshakeTime }}</td>
+            <td>{{ with .Endpoint }}{{ . }}{{ end }}</td>
+          {{ else }}
+            <td colspan="2">
+              <span class="text-muted">N/A</span>
+            </td>
+          {{ end }}
         </tr>
       {{ end }}
     </tbody>

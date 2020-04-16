@@ -5,12 +5,10 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/sosedoff/wg-registry/util"
-
 	"github.com/gin-gonic/gin"
 	"github.com/skip2/go-qrcode"
+	"github.com/sosedoff/wg-registry/util"
 	"golang.org/x/oauth2"
-	"golang.zx2c4.com/wireguard/wgctrl"
 	"xojoc.pw/useragent"
 
 	"github.com/sosedoff/wg-registry/generate"
@@ -61,7 +59,6 @@ func New(config *Config) (*gin.Engine, error) {
 	admin.GET("/server", handleAdminServer)
 	admin.POST("/server", handleAdminServer)
 	admin.GET("/server/restart", handleAdminRestartServer)
-	admin.GET("/peers", handleAdminPeers)
 
 	// Everything else
 	router.GET("/static/:file", serveStaticAsset(config.AssetFS))
@@ -333,10 +330,26 @@ func handleAdminIndex(c *gin.Context) {
 		return
 	}
 
-	config, err := generate.ServerConfig(store)
+	config, err := generate.ServerConfig(store, server)
 	if err != nil {
 		htmlError(c, err)
 		return
+	}
+
+	peers, err := fetchWireGuardPeers(server.Interface)
+	if err != nil {
+		log.Println("cant fetch peers:", err)
+	}
+	if peers != nil {
+		for _, p := range peers {
+			key := p.PublicKey.String()
+			for _, d := range devices {
+				if d.PublicKey == key {
+					d.SetPeerInfo(&p)
+					break
+				}
+			}
+		}
 	}
 
 	c.HTML(200, "admin_index.html", gin.H{
@@ -404,44 +417,4 @@ func handleAdminRestartServer(c *gin.Context) {
 	}
 
 	c.Redirect(302, "/admin")
-}
-
-func handleAdminPeers(c *gin.Context) {
-	server, err := getStore(c).FindServer()
-	if err != nil {
-		htmlError(c, err)
-		return
-	}
-
-	client, err := wgctrl.New()
-	if err != nil {
-		htmlError(c, err)
-		return
-	}
-
-	device, err := client.Device(server.Interface)
-	if err != nil {
-		htmlError(c, err)
-		return
-	}
-
-	peerInfos := make([]map[string]interface{}, len(device.Peers))
-
-	for idx, p := range device.Peers {
-		ips := make([]string, len(p.AllowedIPs))
-		for ipidx, ip := range p.AllowedIPs {
-			ips[ipidx] = ip.String()
-		}
-
-		peerInfos[idx] = map[string]interface{}{
-			"PublicKey":         p.PublicKey.String(),
-			"Endpoint":          p.Endpoint.String(),
-			"LastHandshakeTime": p.LastHandshakeTime,
-			"ReceiveBytes":      p.ReceiveBytes,
-			"TransmitBytes":     p.TransmitBytes,
-			"AllowedIPs":        ips,
-		}
-	}
-
-	c.HTML(200, "admin_peers.html", gin.H{"peers": peerInfos})
 }
