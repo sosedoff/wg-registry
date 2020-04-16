@@ -403,7 +403,7 @@ func handleAdminRestartServer(c *gin.Context) {
 		}
 	}
 
-	c.Redirect(302, "/admin/server")
+	c.Redirect(302, "/admin")
 }
 
 func handleAdminPeers(c *gin.Context) {
