@@ -107,7 +107,7 @@ func ServerWithDefaults() *Server {
 		Name:       "private",
 		Interface:  iface,
 		IPV4Net:    "10.10.0.0/24",
-		IPV4Addr:   "10.10.0.0/24",
+		IPV4Addr:   "10.10.0.0",
 		ListenPort: 51820,
 		PostUp:     postUp,
 		PostDown:   postDown,
