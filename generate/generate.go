@@ -60,7 +60,7 @@ func ServerConfig(store store.Store, server *model.Server) ([]byte, error) {
 	err = tpl.Execute(out, map[string]interface{}{
 		"date":       time.Now().Format(time.RFC850),
 		"privateKey": server.PrivateKey,
-		"address":    server.IPV4Addr,
+		"address":    server.IPV4Net,
 		"listenPort": server.ListenPort,
 		"postUp":     server.PostUp,
 		"postDown":   server.PostDown,
