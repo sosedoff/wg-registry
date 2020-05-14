@@ -1,4 +1,7 @@
-# wg-registry [![Go Report Card](https://goreportcard.com/badge/github.com/sosedoff/wg-registry)](https://goreportcard.com/report/github.com/sosedoff/wg-registry)
+# wg-registry 
+
+- [![Go Report Card](https://goreportcard.com/badge/github.com/sosedoff/wg-registry)](https://goreportcard.com/report/github.com/sosedoff/wg-registry)
+- [![CircleCI](https://circleci.com/gh/sosedoff/wg-registry.svg?style=svg)](https://circleci.com/gh/sosedoff/wg-registry)
 
 WireGuard server configuration and user management portal.
 
