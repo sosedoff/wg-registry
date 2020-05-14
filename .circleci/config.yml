@@ -1,0 +1,12 @@
+version: 2
+
+jobs:
+  build:
+    working_directory: /go/src/github.com/sosedoff/wg-registry
+
+    docker:
+      - image: circleci/golang:1.14
+
+    steps:
+      - checkout
+      - run: make test
