@@ -7,9 +7,8 @@ import (
 	"io/ioutil"
 	"time"
 
-	"github.com/sosedoff/wg-registry/util"
-
 	"github.com/sosedoff/wg-registry/service"
+	"github.com/sosedoff/wg-registry/util"
 )
 
 type FileConfig struct {
